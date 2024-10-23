@@ -23,5 +23,9 @@ jobs:
                           -g javascript \
                           -o api-client \
                           --additional-properties=usePromises=true
+            - name: Install and build generated client
+              run: |
+                  npm i --prefix api-client/
+                  npm run --prefix api-client/ build
             - name: test
               run: echo "$(ls -l api-client/)"
