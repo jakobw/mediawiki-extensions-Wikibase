@@ -2,6 +2,8 @@ name: Publish REST API Client
 on:
     push:
         branches: [ build-rest-api-client-action ]
+        paths:
+            - repo/rest-api/src/RouteHandlers/openapi.json
 jobs:
     build-and-publish-api-client:
         runs-on: ubuntu-latest
