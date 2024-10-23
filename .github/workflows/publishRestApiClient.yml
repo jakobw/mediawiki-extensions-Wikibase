@@ -25,6 +25,7 @@ jobs:
                           --additional-properties=usePromises=true
             - name: Install and build generated client
               run: |
+                  sudo chown -R $(whoami) api-client/
                   npm i --prefix api-client/
                   npm run --prefix api-client/ build
             - name: test
