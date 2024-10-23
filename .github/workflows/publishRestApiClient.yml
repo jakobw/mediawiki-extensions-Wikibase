@@ -18,7 +18,8 @@ jobs:
                   image: openapitools/openapi-generator-cli
                   options: -v ${{ github.workspace }}:/local -w /local
                   run: |
-                      export VERSION=$(npx semver $(npm view wb-rest-api-client version) --increment minor)
+                      VERSION=$(npx semver $(npm view wb-rest-api-client version) --increment minor)
+                      echo $VERSION
                       /usr/local/bin/docker-entrypoint.sh generate \
                           -i openapi-dereferenced.json \
                           -g javascript \
