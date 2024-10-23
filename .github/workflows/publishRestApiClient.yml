@@ -36,4 +36,4 @@ jobs:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
               run: |
                   echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }}" > ~/.npmrc
-                  npm publish --access public
+                  npm publish --prefix api-client/ --access public
