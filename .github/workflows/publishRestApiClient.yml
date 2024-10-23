@@ -1,0 +1,44 @@
+name: Publish REST API Client
+on:
+    push:
+        branches: [ build-rest-api-client-action ]
+        paths:
+            - repo/rest-api/src/RouteHandlers/openapi.json
+jobs:
+    build-and-publish-api-client:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: '20.x'
+            - name: Dereference OpenAPI doc
+              run: npx json-dereference-cli json-dereference -s repo/rest-api/src/RouteHandlers/openapi.json -o openapi-dereferenced.json
+            - name: Define next package version
+              run: echo "VERSION=$(npx semver $(npm view wb-rest-api-client version) --increment minor)" >> $GITHUB_ENV
+            - name: Build the API client
+              uses: addnab/docker-run-action@v3
+              with:
+                  image: openapitools/openapi-generator-cli
+                  options: -v ${{ github.workspace }}:/local -w /local
+                  run: |
+                      /usr/local/bin/docker-entrypoint.sh generate \
+                          -i openapi-dereferenced.json \
+                          -g javascript \
+                          -o api-client \
+                          --additional-properties=usePromises=true \
+                          --additional-properties=projectName=wb-rest-api-client \
+                          --additional-properties=projectDescription="Wikibase REST API Client" \
+                          --additional-properties=licenseName="BSD-3-Clause license" \
+                          --additional-properties=projectVersion=${{ env.VERSION }}
+            - name: Install and build generated client
+              run: |
+                  sudo chown -R $(whoami) api-client/
+                  npm i --prefix api-client/
+            - name: Publish
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+              run: |
+                  echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }}" > ~/.npmrc
+                  cd api-client/
+                  npm publish --access public
