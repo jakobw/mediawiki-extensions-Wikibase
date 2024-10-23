@@ -22,11 +22,18 @@ jobs:
                           -i openapi-dereferenced.json \
                           -g javascript \
                           -o api-client \
-                          --additional-properties=usePromises=true
+                          --additional-properties=usePromises=true \
+                          --additional-properties=projectName=wb-rest-api-client \
+                          --additional-properties=projectDescription="Wikibase REST API Client" \
+                          --additional-properties=licenseName="BSD-3-Clause license" \
+                          --additional-properties=projectVersion=0.2.0
             - name: Install and build generated client
               run: |
                   sudo chown -R $(whoami) api-client/
                   npm i --prefix api-client/
-                  npm run --prefix api-client/ build
-            - name: test
-              run: echo "$(ls -l api-client/)"
+            - name: Publish
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+              run: |
+                  echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }}" > ~/.npmrc
+                  npm publish --access public
