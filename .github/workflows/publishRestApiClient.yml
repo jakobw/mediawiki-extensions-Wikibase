@@ -26,7 +26,7 @@ jobs:
                           --additional-properties=projectName=wb-rest-api-client \
                           --additional-properties=projectDescription="Wikibase REST API Client" \
                           --additional-properties=licenseName="BSD-3-Clause license" \
-                          --additional-properties=projectVersion=0.2.0
+                          --additional-properties=projectVersion=$(npx semver $(npm view wb-rest-api-client version) --increment minor)
             - name: Install and build generated client
               run: |
                   sudo chown -R $(whoami) api-client/
