@@ -18,6 +18,7 @@ jobs:
                   image: openapitools/openapi-generator-cli
                   options: -v ${{ github.workspace }}:/local -w /local
                   run: |
+                      export VERSION=$(npx semver $(npm view wb-rest-api-client version) --increment minor)
                       /usr/local/bin/docker-entrypoint.sh generate \
                           -i openapi-dereferenced.json \
                           -g javascript \
@@ -26,7 +27,7 @@ jobs:
                           --additional-properties=projectName=wb-rest-api-client \
                           --additional-properties=projectDescription="Wikibase REST API Client" \
                           --additional-properties=licenseName="BSD-3-Clause license" \
-                          --additional-properties=projectVersion=$(npx semver $(npm view wb-rest-api-client version) --increment minor)
+                          --additional-properties=projectVersion=${{ env.VERSION }}
             - name: Install and build generated client
               run: |
                   sudo chown -R $(whoami) api-client/
