@@ -35,6 +35,9 @@ jobs:
               run: |
                   sudo chown -R $(whoami) api-client/
                   npm i --prefix api-client/
+                  echo "" >> .github/workflows/publishRestApiClient/README.md
+                  cat api-client/README.md >> .github/workflows/publishRestApiClient/README.md
+                  mv .github/workflows/publishRestApiClient/README.md api-client/README.md
             - name: Publish
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
