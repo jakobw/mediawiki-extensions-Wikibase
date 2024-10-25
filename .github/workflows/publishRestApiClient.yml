@@ -35,8 +35,10 @@ jobs:
               run: |
                   sudo chown -R $(whoami) api-client/
                   npm i --prefix api-client/
-                  echo "" >> .github/workflows/publishRestApiClient/README.md
-                  cat api-client/README.md >> .github/workflows/publishRestApiClient/README.md
+            - name: Prepend a custom section to the generated README.md
+              run: |
+                  # append the generated README to the custom one, but without the headline
+                  tail -n +2 api-client/README.md >> .github/workflows/publishRestApiClient/README.md
                   mv .github/workflows/publishRestApiClient/README.md api-client/README.md
             - name: Publish
               env:
