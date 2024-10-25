@@ -15,7 +15,14 @@ jobs:
             - name: Dereference OpenAPI doc
               run: npx json-dereference-cli json-dereference -s repo/rest-api/src/RouteHandlers/openapi.json -o openapi-dereferenced.json
             - name: Define next package version
-              run: echo "VERSION=$(npx semver $(npm view wb-rest-api-client version) --increment minor)" >> $GITHUB_ENV
+              run:  |
+                  CURRENT_VERSION=$(npm view wb-rest-api-client version || echo "null")
+                  if [ "$CURRENT_VERSION" = "null" ]; then
+                     VERSION="0.1.0"
+                  else
+                     VERSION=$(npx semver "$CURRENT_VERSION" --increment minor)
+                  fi
+                  echo "VERSION=$VERSION" >> $GITHUB_ENV
             - name: Build the API client
               uses: addnab/docker-run-action@v3
               with:
