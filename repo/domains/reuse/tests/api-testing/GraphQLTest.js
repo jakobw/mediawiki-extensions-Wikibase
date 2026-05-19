@@ -200,7 +200,6 @@ describe( 'Wikibase GraphQL', () => {
 	} );
 
 	it( 'can get labels of linked entities with item', async () => {
-
 		const response = await queryGraphQL( { query: `
 			{
 				item(id: "${ item2.id }") {
@@ -237,8 +236,7 @@ describe( 'Wikibase GraphQL', () => {
 			} );
 	} );
 
-	it( 'can get labels of linked entities of multiple items with itemsById', async () =>{
-
+	it( 'can get labels of linked entities of multiple items with itemsById', async () => {
 		const response = await queryGraphQL( { query: `
 			{
 				itemsById(ids: ["${ item2.id }", "${ item1.id }"]) {
@@ -413,6 +411,8 @@ describe( 'Wikibase GraphQL', () => {
 	} );
 
 	it( 'can look up items by sitelink', async () => {
+		skipIfNoOpenSearch.call( this );
+		// const sitelinkTitle = item1.sitelinks[ siteId ].title;
 		const response = await queryGraphQL( { query: `
 			{
 			itemBySitelink(title: "${ linkedArticle }", siteId: "${ siteId }") { id }
@@ -426,24 +426,6 @@ describe( 'Wikibase GraphQL', () => {
 				}
 			}
 		);
-	} );
-
-	it( 'supports variables parameter', async () => {
-
-		const response = await queryGraphQL( {
-			query: 'query item($id: ItemId!) { item(id : $id) { id } }',
-			variables: { id: item1.id }
-		} );
-
-		assert.deepEqual(
-			response.body,
-			{
-				data: {
-					item: {
-						id: item1.id
-					}
-				}
-			} );
 	} );
 
 	it( 'can look up items by externalId', async function () {
@@ -464,25 +446,6 @@ describe( 'Wikibase GraphQL', () => {
 				}
 			}
 		);
-	} );
-
-	it( 'supports operationName parameter, required only if multiple operations are present in the query', async () => {
-
-		const response = await queryGraphQL( {
-			query: `query item1 { item(id: "${ item1.id }") { id } }
-			        query item2 { item(id: "${ item2.id }"){ id } }`,
-			operationName: 'item1'
-		} );
-
-		assert.deepEqual(
-			response.body,
-			{
-				data: {
-					item: {
-						id: item1.id
-					}
-				}
-			} );
 	} );
 
 	it( 'supports introspection', async () => {
@@ -527,6 +490,41 @@ describe( 'Wikibase GraphQL', () => {
 			.to.deep.include( { isDeprecated: false } );
 	} );
 
+	it( 'supports operationName parameter, required only if multiple operations are present in the query', async () => {
+		const response = await queryGraphQL( {
+			query: `query item1 { item(id: "${ item1.id }") { id } }
+			        query item2 { item(id: "${ item2.id }"){ id } }`,
+			operationName: 'item1'
+		} );
+
+		assert.deepEqual(
+			response.body,
+			{
+				data: {
+					item: {
+						id: item1.id
+					}
+				}
+			} );
+	} );
+
+	it( 'supports variables parameter', async () => {
+		const response = await queryGraphQL( {
+			query: 'query item($id: ItemId!) { item(id : $id) { id } }',
+			variables: { id: item1.id }
+		} );
+
+		assert.deepEqual(
+			response.body,
+			{
+				data: {
+					item: {
+						id: item1.id
+					}
+				}
+			} );
+	} );
+
 	it( 'throws an error when query is missing', async () => {
 		const response = await queryGraphQL( { query: '' } );
 
@@ -547,5 +545,4 @@ describe( 'Wikibase GraphQL', () => {
 			{ errors: [ { message: "Requests must be sent as 'application/json'" } ] }
 		);
 	} );
-
 	} );
