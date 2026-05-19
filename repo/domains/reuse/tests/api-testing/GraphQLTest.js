@@ -410,7 +410,7 @@ describe( 'Wikibase GraphQL', () => {
 		} );
 	} );
 
-	it( 'can look up items by sitelink', async () => {
+	it( 'can look up items by sitelink', async function () {
 		skipIfNoOpenSearch.call( this );
 		// const sitelinkTitle = item1.sitelinks[ siteId ].title;
 		const response = await queryGraphQL( { query: `
