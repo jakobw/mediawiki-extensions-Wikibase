@@ -122,6 +122,7 @@ describe( 'Wikibase GraphQL', () => {
 					}
 				]
 			},
+			sitelinks: { [ siteId ]: { title: linkedArticle } }
 		} );
 
 		// to remove later kim
@@ -132,18 +133,18 @@ describe( 'Wikibase GraphQL', () => {
 // // to remove later kim
 // // to remove later kim
 // // to remove later kim
-// console.log( 'GraphQLTest siteId:', siteId );
-// console.log( 'GraphQLTest linkedArticle:', linkedArticle );
-// console.log( 'GraphQLTest sitelinks payload:', JSON.stringify( {
-//     [ siteId ]: { title: linkedArticle }
-// } ) );
+console.log( 'GraphQLTest siteId:', siteId );
+console.log( 'GraphQLTest linkedArticle:', linkedArticle );
+console.log( 'GraphQLTest sitelinks payload:', JSON.stringify( {
+    [ siteId ]: { title: linkedArticle }
+} ) );
 // 		// add sitelink after item creation
-const sitelinkResponse = await new RequestBuilder()
-    .withRoute( 'PUT', '/v1/entities/items/{item_id}/sitelinks/{site_id}' )
-    .withPathParam( 'item_id', item1.id )
-    .withPathParam( 'site_id', siteId )
-    .withJsonBodyParam( 'sitelink', { title: linkedArticle } )
-    .makeRequest();
+// const sitelinkResponse = await new RequestBuilder()
+//     .withRoute( 'PUT', '/v1/entities/items/{item_id}/sitelinks/{site_id}' )
+//     .withPathParam( 'item_id', item1.id )
+//     .withPathParam( 'site_id', siteId )
+//     .withJsonBodyParam( 'sitelink', { title: linkedArticle } )
+//     .makeRequest();
 // // to remove later kim
 // // to remove later kim
 // // to remove later kim
@@ -151,11 +152,11 @@ const sitelinkResponse = await new RequestBuilder()
 // console.log( 'setSitelink status:', sitelinkResponse.status );
 // console.log( 'setSitelink body:', JSON.stringify( sitelinkResponse.body ) );
 
-assert.include(
-    [ 200, 201 ],
-    sitelinkResponse.status,
-    `setSitelink failed: ${JSON.stringify( sitelinkResponse.body )}`
-);
+// assert.include(
+//     [ 200, 201 ],
+//     sitelinkResponse.status,
+//     `setSitelink failed: ${JSON.stringify( sitelinkResponse.body )}`
+// );
 
 		// Create item with two statements, potato: isType -> vegetable, hasRelationship->vegetable
 		item2 = await createItem( {
