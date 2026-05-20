@@ -7,8 +7,8 @@ set -x
 cd ../mediawiki
 
 function apply_repo_settings {
-  echo '$wgServer = "http://127.0.0.1:8080";' >> LocalSettings.php
-  echo '$wgCanonicalServer = "http://127.0.0.1:8080";' >> LocalSettings.php
+  echo '$wgServer = "http://default.mediawiki.local.wmftest.net:8080";' >> LocalSettings.php
+  echo '$wgCanonicalServer = "http://default.mediawiki.local.wmftest.net:8080";' >> LocalSettings.php
   echo '$wgScriptPath = "";' >> LocalSettings.php
 
   echo '$wgWBClientSettings["repoSiteId"] = "default";' >> LocalSettings.php
