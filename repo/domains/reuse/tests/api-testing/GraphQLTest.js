@@ -5,49 +5,36 @@ const { expect } = require( 'chai' );
 const config = require( 'api-testing/lib/config' );
 const { RequestBuilder } = require( '../../../../rest-api/tests/mocha/helpers/RequestBuilder.js' );
 
-// async function createItem( item ) {
-// 	return ( await new RequestBuilder()
-// 		.withRoute( 'POST', '/v1/entities/items' )
-// 		.withJsonBodyParam( 'item', item )
-// 		.makeRequest() ).body;
-// }
-
-// async function createProperty( property ) {
-// 	return ( await new RequestBuilder()
-// 		.withRoute( 'POST', '/v1/entities/properties' )
-// 		.withJsonBodyParam( 'property', property )
-// 		.makeRequest() ).body;
-// }
 async function createItem( item, user ) {
-    const response = await new RequestBuilder()
-        .withRoute( 'POST', '/v1/entities/items' )
-        .withJsonBodyParam( 'item', item )
-        .withUser( user )
-        .makeRequest();
+	const response = await new RequestBuilder()
+		.withRoute( 'POST', '/v1/entities/items' )
+		.withJsonBodyParam( 'item', item )
+		.withUser( user )
+		.makeRequest();
 
-    assert.strictEqual(
-        response.status,
-        201,
-        `createItem failed: ${JSON.stringify( response.body )}`
-    );
+	assert.strictEqual(
+		response.status,
+		201,
+		`createItem failed: ${ JSON.stringify( response.body ) }`
+	);
 
-    return response.body;
+	return response.body;
 }
 
 async function createProperty( property, user ) {
-    const response = await new RequestBuilder()
-        .withRoute( 'POST', '/v1/entities/properties' )
-        .withJsonBodyParam( 'property', property )
-        .withUser( user )
-        .makeRequest();
+	const response = await new RequestBuilder()
+		.withRoute( 'POST', '/v1/entities/properties' )
+		.withJsonBodyParam( 'property', property )
+		.withUser( user )
+		.makeRequest();
 
-    assert.strictEqual(
-        response.status,
-        201,
-        `createProperty failed: ${JSON.stringify( response.body )}`
-    );
+	assert.strictEqual(
+		response.status,
+		201,
+		`createProperty failed: ${ JSON.stringify( response.body ) }`
+	);
 
-    return response.body;
+	return response.body;
 }
 
 function queryGraphQL( requestBody ) {
@@ -111,17 +98,13 @@ describe( 'Wikibase GraphQL', () => {
 			labels: { en: `external id property ${ utils.uniq() }` }
 		} );
 
-
-		// remove later kim
-		// REMOVE LATER KIM
-		console.log( 'GraphQLTest siteId:', siteId );
-        console.log( 'GraphQLTest linkedArticle:', linkedArticle );
-        console.log( 'GraphQLTest sitelinks payload:', JSON.stringify( {
-            [ siteId ]: { title: linkedArticle }
-        } ) );
-
-        assert.notStrictEqual( siteId, 'enwiki', 'siteId is still enwiki in CI' );
-
+		// remove later when done testing kim, commented out to pass eslint
+		// console.log( 'GraphQLTest siteId:', siteId );
+		// console.log( 'GraphQLTest linkedArticle:', linkedArticle );
+		// console.log( 'GraphQLTest sitelinks payload:', JSON.stringify( {
+		// 	[ siteId ]: { title: linkedArticle }
+		// } ) );
+		// assert.notStrictEqual( siteId, 'enwiki', 'siteId is still enwiki in CI' );
 
 		// item with label "vegetable", statements: hasRelationship->somevalue, external-id
 		item1 = await createItem( {
@@ -136,39 +119,6 @@ describe( 'Wikibase GraphQL', () => {
 			},
 			sitelinks: { [ siteId ]: { title: linkedArticle } }
 		} );
-
-		// to remove later kim
-
-
-// // to remove later kim
-// // to remove later kim
-// // to remove later kim
-// // to remove later kim
-// // to remove later kim
-console.log( 'GraphQLTest siteId:', siteId );
-console.log( 'GraphQLTest linkedArticle:', linkedArticle );
-console.log( 'GraphQLTest sitelinks payload:', JSON.stringify( {
-    [ siteId ]: { title: linkedArticle }
-} ) );
-// 		// add sitelink after item creation
-// const sitelinkResponse = await new RequestBuilder()
-//     .withRoute( 'PUT', '/v1/entities/items/{item_id}/sitelinks/{site_id}' )
-//     .withPathParam( 'item_id', item1.id )
-//     .withPathParam( 'site_id', siteId )
-//     .withJsonBodyParam( 'sitelink', { title: linkedArticle } )
-//     .makeRequest();
-// // to remove later kim
-// // to remove later kim
-// // to remove later kim
-// // to remove later kim
-// console.log( 'setSitelink status:', sitelinkResponse.status );
-// console.log( 'setSitelink body:', JSON.stringify( sitelinkResponse.body ) );
-
-// assert.include(
-//     [ 200, 201 ],
-//     sitelinkResponse.status,
-//     `setSitelink failed: ${JSON.stringify( sitelinkResponse.body )}`
-// );
 
 		// Create item with two statements, potato: isType -> vegetable, hasRelationship->vegetable
 		item2 = await createItem( {
@@ -424,6 +374,7 @@ console.log( 'GraphQLTest sitelinks payload:', JSON.stringify( {
 	} );
 
 	it( 'can look up items by sitelink', async function () {
+		// remove later kim
 		// skipIfNoOpenSearch.call( this );
 		// const sitelinkTitle = item1.sitelinks[ siteId ].title;
 		const response = await queryGraphQL( { query: `
@@ -558,4 +509,4 @@ console.log( 'GraphQLTest sitelinks payload:', JSON.stringify( {
 			{ errors: [ { message: "Requests must be sent as 'application/json'" } ] }
 		);
 	} );
-	} );
+} );
