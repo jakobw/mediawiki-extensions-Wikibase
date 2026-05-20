@@ -64,15 +64,14 @@ jobs:
       - name: Verify registered site
         working-directory: ../mediawiki
         run: |
-          php maintenance/run.php eval.php --script '
-            $site = MediaWiki\MediaWikiServices::getInstance()
-              ->getSiteLookup()
-              ->getSite( "default" );
-            var_dump( $site ? $site->getGlobalId() : null );
-          '
-          
-      - name: Install root test dependencies
-        run: npm ci --ignore-scripts
+          DB_NAME=$(sed -nE 's/^\$wgDBname *= *"([^"]+)";/\1/p' LocalSettings.php)
+          DB_DIR=$(sed -nE 's/^\$wgSQLiteDataDir *= *"([^"]+)";/\1/p' LocalSettings.php)
+
+          RESULT=$(sqlite3 "$DB_DIR/$DB_NAME.sqlite" \
+            "select site_global_key from sites where site_global_key = 'default';")
+
+          echo "Registered site: $RESULT"
+          test "$RESULT" = "default"
 
       - name: Install root test dependencies
         run: npm ci --ignore-scripts
