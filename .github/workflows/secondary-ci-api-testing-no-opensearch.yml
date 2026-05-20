@@ -110,25 +110,44 @@ jobs:
       - name: Add local wiki hostname
         run: |
           echo "127.0.0.1 default.mediawiki.local.wmftest.net" | sudo tee -a /etc/hosts
-          
+
+      # - name: Start MediaWiki web server
+      #   working-directory: ../mediawiki
+      #   run: |
+      #       nohup php -S 127.0.0.1:8080 -t . >/tmp/php-server.log 2>&1 &
+      #       echo $! > /tmp/php-server.pid
+      #       sleep 2
+      #       ps -p "$(cat /tmp/php-server.pid)" || (cat /tmp/php-server.log && exit 1)
+
+      # - name: Wait for MediaWiki
+      #   run: |
+      #     for i in $(seq 1 30); do
+      #       curl -fsS http://default.mediawiki.local.wmftest.net:8080/api.php >/dev/null && \
+      #       curl -fsS http://default.mediawiki.local.wmftest.net:8080/rest.php >/dev/null && exit 0
+      #       sleep 1
+      #     done
+      #     cat /tmp/php-server.log
+      #     exit 1
       - name: Start MediaWiki web server
         working-directory: ../mediawiki
         run: |
-            nohup php -S 127.0.0.1:8080 -t . >/tmp/php-server.log 2>&1 &
-            echo $! > /tmp/php-server.pid
-            sleep 2
-            ps -p "$(cat /tmp/php-server.pid)" || (cat /tmp/php-server.log && exit 1)
+          nohup env PHP_CLI_SERVER_WORKERS=4 php -S 127.0.0.1:8080 -t . >/tmp/php-server.log 2>&1 &
+          echo $! > /tmp/php-server.pid
+          sleep 2
+          ps -p "$(cat /tmp/php-server.pid)" || (cat /tmp/php-server.log && exit 1)
 
       - name: Wait for MediaWiki
         run: |
           for i in $(seq 1 30); do
             curl -fsS http://default.mediawiki.local.wmftest.net:8080/api.php >/dev/null && \
-            curl -fsS http://default.mediawiki.local.wmftest.net:8080/rest.php >/dev/null && exit 0
+            curl -fsS http://default.mediawiki.local.wmftest.net:8080/rest.php >/dev/null && \
+            curl -fsS "http://default.mediawiki.local.wmftest.net:8080/api.php?action=query&format=json&titles=Main_Page" >/dev/null && \
+            exit 0
             sleep 1
           done
           cat /tmp/php-server.log
           exit 1
-
+          
       # take out later
       - name: Run focused CRUD sitelink create test
         run: |
