@@ -61,6 +61,16 @@ jobs:
             --language en \
             --filepath 'http://127.0.0.1:8080/$1'
 
+      - name: Verify registered site
+        working-directory: ../mediawiki
+        run: |
+          php maintenance/run.php eval.php --script '
+            $site = MediaWiki\MediaWikiServices::getInstance()
+              ->getSiteLookup()
+              ->getSite( "default" );
+            var_dump( $site ? $site->getGlobalId() : null );
+          '
+          
       - name: Install root test dependencies
         run: npm ci --ignore-scripts
 
