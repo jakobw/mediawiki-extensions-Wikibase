@@ -61,19 +61,6 @@ jobs:
                     --language en \
                     --filepath 'http://default.mediawiki.local.wmftest.net:8080/$1'
 
-            # can remove later kim
-            - name: Verify registered site
-              working-directory: ../mediawiki
-              run: |
-                  DB_NAME=$(sed -nE 's/^\$wgDBname *= *"([^"]+)";/\1/p' LocalSettings.php)
-                  DB_DIR=$(sed -nE 's/^\$wgSQLiteDataDir *= *"([^"]+)";/\1/p' LocalSettings.php)
-
-                  RESULT=$(sqlite3 "$DB_DIR/$DB_NAME.sqlite" \
-                    "select site_global_key from sites where site_global_key = 'default';")
-
-                  echo "Registered site: $RESULT"
-                  test "$RESULT" = "default"
-
             - name: Install root test dependencies
               run: npm ci --ignore-scripts
 
@@ -117,13 +104,6 @@ jobs:
                   cat /tmp/php-server.log
                   exit 1
 
-            # can remove later kim, commented out for rate limiting
-            # - name: Run focused CRUD sitelink create test
-            #   run: |
-            #       npx mocha --timeout 0 \
-            #         repo/domains/crud/tests/mocha/api-testing/CreateItemTest.js \
-            #         --grep "can create an item with all fields"
-
             - name: Run GraphQL api tests
               run: npm run api-testing:reuse
 
@@ -132,32 +112,6 @@ jobs:
 
             - name: Run REST search schema tests
               run: npm --prefix repo/rest-api run api-testing:spec-search
-
-            # can remove later kim
-            - name: Dump MediaWiki server log
-              if: ${{ always() }}
-              run: |
-                  test -f /tmp/php-server.log && cat /tmp/php-server.log || true
-
-            # can remove later kim
-            - name: Dump MediaWiki debug log
-              if: ${{ always() }}
-              working-directory: ../mediawiki
-              run: |
-                  test -f mw-debug.log && cat mw-debug.log || true
-
-            # can remove later kim
-            - name: Dump registered site row
-              if: ${{ always() }}
-              working-directory: ../mediawiki
-              run: |
-                  DB_NAME=$(sed -nE 's/^\$wgDBname *= *"([^"]+)";/\1/p' LocalSettings.php)
-                  DB_DIR=$(sed -nE 's/^\$wgSQLiteDataDir *= *"([^"]+)";/\1/p' LocalSettings.php)
-
-                  sqlite3 "$DB_DIR/$DB_NAME.sqlite" \
-                    ".headers on" \
-                    ".mode column" \
-                    "select * from sites where site_global_key = 'default';"
 
             - name: Send mail
               if: ${{ failure() }}

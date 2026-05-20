@@ -98,14 +98,6 @@ describe( 'Wikibase GraphQL', () => {
 			labels: { en: `external id property ${ utils.uniq() }` }
 		} );
 
-		// remove later when done testing kim, commented out to pass eslint
-		// console.log( 'GraphQLTest siteId:', siteId );
-		// console.log( 'GraphQLTest linkedArticle:', linkedArticle );
-		// console.log( 'GraphQLTest sitelinks payload:', JSON.stringify( {
-		// 	[ siteId ]: { title: linkedArticle }
-		// } ) );
-		// assert.notStrictEqual( siteId, 'enwiki', 'siteId is still enwiki in CI' );
-
 		// item with label "vegetable", statements: hasRelationship->somevalue, external-id
 		item1 = await createItem( {
 			labels: { en: item1label },
