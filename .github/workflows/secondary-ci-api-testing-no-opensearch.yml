@@ -10,20 +10,13 @@ env:
 jobs:
   secondary-ci-api-testing-no-opensearch:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-        - env:
-            MW_BRANCH: master
-            DBTYPE: sqlite
-            LANG: en
-            WB: both
-            IPMASKING: disabled
-            QUIBBLE_OPENSEARCH: 'false'
-          php-versions: '8.3.30'
     env:
-      API_TESTING_CONFIG_FILE: ${{ github.workspace }}/.api-testing.config.json
+      MW_BRANCH: master
+      DBTYPE: sqlite
+      LANG: en
+      WB: both
+      IPMASKING: disabled
+      QUIBBLE_OPENSEARCH: 'false'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -31,7 +24,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php-versions }}
+          php-version: '8.3.30'
           extensions: pdo_sqlite, mysqlnd
 
       - name: Setup Node
@@ -44,27 +37,32 @@ jobs:
         uses: actions/cache@v4.2.3
         with:
           path: ${{ env.COMPOSER_HOME }}/cache
-          key: composer-cache-php${{ matrix.php-versions }}
+          key: composer-cache-php8.3.30
 
-      - name: install.sh
-        env: ${{ matrix.env }}
-        run: |
-          bash ./build/ci-scripts/install.sh
+      - name: Install MediaWiki and Wikibase
+        run: bash ./build/ci-scripts/install.sh
 
       - name: Apply WB settings
-        env: ${{ matrix.env }}
-        run: |
-          bash ./build/ci-scripts/mw-apply-wb-settings.sh
+        run: bash ./build/ci-scripts/mw-apply-wb-settings.sh
 
       - name: Apply e2e WB settings
-        env: ${{ matrix.env }}
-        run: |
-          bash ./build/ci-scripts/mw-apply-e2e.sh
+        run: bash ./build/ci-scripts/mw-apply-e2e.sh
 
       - name: Update DB
-        env: ${{ matrix.env }}
+        run: bash ./build/ci-scripts/update-db.sh
+
+      - name: Register local site for sitelinks
+        working-directory: ../mediawiki
         run: |
-          bash ./build/ci-scripts/update-db.sh
+          php maintenance/run.php addSite \
+            -- default local \
+            --interwiki-id default \
+            --pagepath 'http://127.0.0.1:8080/index.php?title=$1' \
+            --language en \
+            --filepath 'http://127.0.0.1:8080/$1'
+
+      - name: Install root test dependencies
+        run: npm ci --ignore-scripts
 
       - name: Install root test dependencies
         run: npm ci --ignore-scripts
@@ -74,23 +72,24 @@ jobs:
 
       - name: Create api-testing config
         run: |
-          SECRET_KEY=$(sed -nE 's/^\$wgSecretKey *= *["'"'"']([^"'"'"']+)["'"'"'];/\1/p' ../mediawiki/LocalSettings.php)
-          cat > .api-testing.config.json <<EOF
-          {
+            SECRET_KEY=$(sed -nE 's/^\$wgSecretKey *= *["'"'"']([^"'"'"']+)["'"'"'];/\1/p' ../mediawiki/LocalSettings.php)
+            cat > .api-testing.config.json <<EOF
+            {
             "base_uri": "http://127.0.0.1:8080/",
             "username": "admin",
             "password": "shie3Ekutaiy5Giebuwi",
             "secret_key": "${SECRET_KEY}"
-          }
-          EOF
+            }
+            EOF
+            cp .api-testing.config.json repo/rest-api/.api-testing.config.json
 
       - name: Start MediaWiki web server
         working-directory: ../mediawiki
         run: |
-          nohup php -S 127.0.0.1:8080 -t . >/tmp/php-server.log 2>&1 &
-          echo $! > /tmp/php-server.pid
-          sleep 2
-          ps -p "$(cat /tmp/php-server.pid)" || (cat /tmp/php-server.log && exit 1)
+            nohup php -S 127.0.0.1:8080 -t . >/tmp/php-server.log 2>&1 &
+            echo $! > /tmp/php-server.pid
+            sleep 2
+            ps -p "$(cat /tmp/php-server.pid)" || (cat /tmp/php-server.log && exit 1)
 
       - name: Wait for MediaWiki
         run: |
@@ -110,7 +109,7 @@ jobs:
 
       - name: Run REST search schema tests
         run: npm --prefix repo/rest-api run api-testing:spec-search
-        
+
       - name: Dump MediaWiki server log
         if: ${{ always() }}
         run: |
