@@ -54,7 +54,7 @@ jobs:
               working-directory: ../mediawiki
               run: |
                   php maintenance/run.php addSite \
-                    enwiki local \
+                    enwiki wikipedia \
                     --interwiki-id enwiki \
                     --pagepath 'http://default.mediawiki.local.wmftest.net:8080/index.php?title=$1' \
                     --language en \
