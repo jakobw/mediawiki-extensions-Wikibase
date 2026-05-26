@@ -45,10 +45,21 @@ jobs:
             - name: Apply WB settings
               run: bash ./build/ci-scripts/mw-apply-wb-settings.sh
 
-            - name: Disable rate limits and throttles for testing
+            - name: Relax default rate limits and throttles for testing
               run: |
-                  echo '$wgRateLimits = [];' >> ../mediawiki/LocalSettings.php
-                  echo '$wgTempAccountCreationThrottle = [];' >> ../mediawiki/LocalSettings.php
+                  echo '$__configOverrides = json_decode( $_SERVER["HTTP_X_CONFIG_OVERRIDE"] ?? "{}", true ) ?: [];' >> ../mediawiki/LocalSettings.php
+                  echo 'if ( !array_key_exists( "wgRateLimits", $__configOverrides ) ) {' >> ../mediawiki/LocalSettings.php
+                  echo '    foreach ( $wgRateLimits as &$__limits ) {' >> ../mediawiki/LocalSettings.php
+                  echo '        foreach ( $__limits as &$__limit ) {' >> ../mediawiki/LocalSettings.php
+                  echo '            if ( !is_array( $__limit ) ) { continue; }' >> ../mediawiki/LocalSettings.php
+                  echo '            $__limit[0] = PHP_INT_MAX;' >> ../mediawiki/LocalSettings.php
+                  echo '        }' >> ../mediawiki/LocalSettings.php
+                  echo '    }' >> ../mediawiki/LocalSettings.php
+                  echo '    unset( $__limits, $__limit );' >> ../mediawiki/LocalSettings.php
+                  echo '}' >> ../mediawiki/LocalSettings.php
+                  echo 'if ( !array_key_exists( "wgTempAccountCreationThrottle", $__configOverrides ) ) {' >> ../mediawiki/LocalSettings.php
+                  echo '    $wgTempAccountCreationThrottle = [];' >> ../mediawiki/LocalSettings.php
+                  echo '}' >> ../mediawiki/LocalSettings.php
 
             - name: Update DB
               run: bash ./build/ci-scripts/update-db.sh
