@@ -5,11 +5,10 @@ const { expect } = require( 'chai' );
 const config = require( 'api-testing/lib/config' );
 const { RequestBuilder } = require( '../../../../rest-api/tests/mocha/helpers/RequestBuilder.js' );
 
-async function createItem( item, user ) {
+async function createItem( item ) {
 	return ( await new RequestBuilder()
 		.withRoute( 'POST', '/v1/entities/items' )
 		.withJsonBodyParam( 'item', item )
-		.withUser( user )
 		.makeRequest() ).body;
 }
 
