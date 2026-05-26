@@ -9,11 +9,20 @@ cd ../mediawiki
 function apply_client_settings {
   echo '$wgEnableWikibaseClient = true;' >> LocalSettings.php
   echo '$wgWBClientSettings["siteGlobalID"] = "enwiki";' >> LocalSettings.php
+  echo '$wgWBClientSettings["repoSiteId"] = "enwiki";' >> LocalSettings.php
+  # echo '$wgWBClientSettings["siteGlobalID"] = "default";' >> LocalSettings.php
+  echo '$wgWBClientSettings["siteGroup"] = "local";' >> LocalSettings.php
+  echo '$wgWBClientSettings["siteLinkGroups"] = [ "local" ];' >> LocalSettings.php
+  echo '$wgWBRepoSettings["siteLinkGroups"] = [ "local", "wikipedia" ];' >> LocalSettings.php
   echo 'wfLoadExtension( "Scribunto" );' >> LocalSettings.php
 }
 
 function apply_repo_settings {
   echo '$wgEnableWikibaseRepo = true;' >> LocalSettings.php
+
+  echo '$wgServer = "http://default.mediawiki.local.wmftest.net:8080";' >> LocalSettings.php
+  echo '$wgCanonicalServer = "http://default.mediawiki.local.wmftest.net:8080";' >> LocalSettings.php
+  echo '$wgScriptPath = "";' >> LocalSettings.php
 }
 
 function apply_common_before_settings {

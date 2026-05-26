@@ -45,8 +45,8 @@ jobs:
             - name: Apply WB settings
               run: bash ./build/ci-scripts/mw-apply-wb-settings.sh
 
-            - name: Apply e2e WB settings
-              run: bash ./build/ci-scripts/mw-apply-e2e.sh
+            # - name: Apply e2e WB settings
+            #   run: bash ./build/ci-scripts/mw-apply-e2e.sh
 
             - name: Update DB
               run: bash ./build/ci-scripts/update-db.sh
