@@ -102,17 +102,17 @@ jobs:
                   cat /tmp/php-server.log
                   exit 1
 
-            - name: Run api tests
-              run: npm run api-testing
-#
-#            - name: Run GraphQL api tests
-#              run: npm run api-testing:reuse
-#
-#            - name: Run REST search api tests
-#              run: npm --prefix repo/rest-api run api-testing:e2e-search
-#
-#            - name: Run REST search schema tests
-#              run: npm --prefix repo/rest-api run api-testing:spec-search
+#            - name: Run api tests
+#              run: npm run api-testing
+
+            - name: Run GraphQL api tests
+              run: npm run api-testing:reuse
+
+            - name: Run REST search api tests
+              run: npm --prefix repo/rest-api run api-testing:e2e-search
+
+            - name: Run REST search schema tests
+              run: npm --prefix repo/rest-api run api-testing:spec-search
 
             - name: Send mail
               if: ${{ failure() }}
