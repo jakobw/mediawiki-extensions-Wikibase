@@ -12,11 +12,10 @@ async function createItem( item ) {
 		.makeRequest() ).body;
 }
 
-async function createProperty( property, user ) {
+async function createProperty( property ) {
 	return ( await new RequestBuilder()
 		.withRoute( 'POST', '/v1/entities/properties' )
 		.withJsonBodyParam( 'property', property )
-		.withUser(user)
 		.makeRequest() ).body;
 }
 
@@ -345,10 +344,11 @@ describe( 'Wikibase GraphQL', () => {
 		} );
 	} );
 
-	it( 'can look up items by sitelink', async function () {
+	it( 'can look up items by sitelink', async () => {
+		const sitelinkTitle = item1.sitelinks[ siteId ].title;
 		const response = await queryGraphQL( { query: `
 			{
-			itemBySitelink(title: "${ linkedArticle }", siteId: "${ siteId }") { id }
+				itemBySitelink(title: "${ sitelinkTitle }", siteId: "${ siteId }") { id }
 			}` } );
 
 		assert.deepEqual(
