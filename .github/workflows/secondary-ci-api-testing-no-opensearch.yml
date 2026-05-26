@@ -17,7 +17,7 @@ jobs:
             WB: both
             IPMASKING: disabled
             QUIBBLE_OPENSEARCH: 'false'
-            E2E_SITELINK_SITE_ID: default
+            # E2E_SITELINK_SITE_ID: default
         steps:
             - name: Checkout
               uses: actions/checkout@v3
@@ -54,8 +54,8 @@ jobs:
               working-directory: ../mediawiki
               run: |
                   php maintenance/run.php addSite \
-                    default local \
-                    --interwiki-id default \
+                    enwiki local \
+                    --interwiki-id enwiki \
                     --pagepath 'http://default.mediawiki.local.wmftest.net:8080/index.php?title=$1' \
                     --language en \
                     --filepath 'http://default.mediawiki.local.wmftest.net:8080/$1'
