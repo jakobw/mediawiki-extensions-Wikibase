@@ -9,9 +9,6 @@ cd ../mediawiki
 function apply_client_settings {
   echo '$wgEnableWikibaseClient = true;' >> LocalSettings.php
   echo '$wgWBClientSettings["siteGlobalID"] = "enwiki";' >> LocalSettings.php
-  # echo '$wgWBClientSettings["repoSiteId"] = "enwiki";' >> LocalSettings.php
-  # echo '$wgWBClientSettings["siteGroup"] = "local";' >> LocalSettings.php
-  # echo '$wgWBClientSettings["siteLinkGroups"] = [ "local" ];' >> LocalSettings.php
   echo 'wfLoadExtension( "Scribunto" );' >> LocalSettings.php
 }
 
