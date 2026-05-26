@@ -45,9 +45,10 @@ jobs:
             - name: Apply WB settings
               run: bash ./build/ci-scripts/mw-apply-wb-settings.sh
 
-              #  remove later kim test
-            - name: Disable rate limits for testing
-              run: echo '$wgRateLimits = [];' >> ../mediawiki/LocalSettings.php
+            - name: Disable rate limits and throttles for testing
+              run: |
+                  echo '$wgRateLimits = [];' >> ../mediawiki/LocalSettings.php
+                  echo '$wgTempAccountCreationThrottle = [];' >> ../mediawiki/LocalSettings.php
 
             - name: Update DB
               run: bash ./build/ci-scripts/update-db.sh
@@ -105,6 +106,7 @@ jobs:
                   cat /tmp/php-server.log
                   exit 1
 
+             # confirm if needed
             - name: Warm up MediaWiki language cache
               run: |
                   curl -fsS "http://127.0.0.1:8080/api.php?action=query&meta=siteinfo&siprop=namespaces|languages&format=json" >/dev/null
