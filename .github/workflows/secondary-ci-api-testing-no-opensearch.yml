@@ -47,26 +47,31 @@ jobs:
 
             - name: Relax default rate limits and throttles for testing
               run: |
-                  echo '$__configOverrides = json_decode( $_SERVER["HTTP_X_CONFIG_OVERRIDE"] ?? "{}", true ) ?: [];' >> ../mediawiki/LocalSettings.php
-                  echo 'if ( !array_key_exists( "wgRateLimits", $__configOverrides ) ) {' >> ../mediawiki/LocalSettings.php
-                  echo '    foreach ( $wgRateLimits as &$__limits ) {' >> ../mediawiki/LocalSettings.php
-                  echo '        foreach ( $__limits as &$__limit ) {' >> ../mediawiki/LocalSettings.php
-                  echo '            if ( !is_array( $__limit ) ) { continue; }' >> ../mediawiki/LocalSettings.php
-                  echo '            $__limit[0] = PHP_INT_MAX;' >> ../mediawiki/LocalSettings.php
-                  echo '        }' >> ../mediawiki/LocalSettings.php
-                  echo '    }' >> ../mediawiki/LocalSettings.php
-                  echo '    unset( $__limits, $__limit );' >> ../mediawiki/LocalSettings.php
-                  echo '}' >> ../mediawiki/LocalSettings.php
-                  echo 'if ( !array_key_exists( "wgTempAccountCreationThrottle", $__configOverrides ) ) {' >> ../mediawiki/LocalSettings.php
-                  echo '    $wgTempAccountCreationThrottle = [];' >> ../mediawiki/LocalSettings.php
-                  echo '}' >> ../mediawiki/LocalSettings.php
-                  echo 'foreach ( $__configOverrides as $__key => $__value ) {' >> ../mediawiki/LocalSettings.php
-                  echo '    $GLOBALS[$__key] = is_array( $__value ) ? array_merge( $GLOBALS[$__key] ?? [], $__value ) : $__value;' >> ../mediawiki/LocalSettings.php
-                  echo '}' >> ../mediawiki/LocalSettings.php
-                  echo 'unset( $__key, $__value );' >> ../mediawiki/LocalSettings.php
+                  cat >> ../mediawiki/LocalSettings.php << 'PHP'
+                  $__configOverrides = json_decode( $_SERVER["HTTP_X_CONFIG_OVERRIDE"] ?? "{}", true ) ?: [];
+                  if ( !array_key_exists( "wgRateLimits", $__configOverrides ) ) {
+                      foreach ( $wgRateLimits as &$__limits ) {
+                          foreach ( $__limits as &$__limit ) {
+                              if ( !is_array( $__limit ) ) { continue; }
+                              $__limit[0] = PHP_INT_MAX;
+                          }
+                      }
+                      unset( $__limits, $__limit );
+                  }
+                  if ( !array_key_exists( "wgTempAccountCreationThrottle", $__configOverrides ) ) {
+                      $wgTempAccountCreationThrottle = [];
+                  }
+                  foreach ( $__configOverrides as $__key => $__value ) {
+                      $GLOBALS[$__key] = is_array( $__value ) ? array_merge( $GLOBALS[$__key] ?? [], $__value ) : $__value;
+                  }
+                  unset( $__key, $__value );
+                  PHP
 
             - name: Update DB
-              run: bash ./build/ci-scripts/update-db.sh
+              run: |
+                  echo '$wgAutoCreateTempUser["enabled"] = true;' >> ../mediawiki/LocalSettings.php
+                  bash ./build/ci-scripts/update-db.sh
+                  echo '$wgAutoCreateTempUser["enabled"] = false;' >> ../mediawiki/LocalSettings.php
 
             - name: Register local site for sitelinks
               working-directory: ../mediawiki
