@@ -17,7 +17,6 @@ jobs:
             WB: both
             IPMASKING: disabled
             QUIBBLE_OPENSEARCH: 'false'
-            # E2E_SITELINK_SITE_ID: default
         steps:
             - name: Checkout
               uses: actions/checkout@v3
@@ -45,6 +44,10 @@ jobs:
 
             - name: Apply WB settings
               run: bash ./build/ci-scripts/mw-apply-wb-settings.sh
+
+              #  remove later kim test
+            - name: Disable rate limits for testing
+              run: echo '$wgRateLimits = [];' >> ../mediawiki/LocalSettings.php
 
             - name: Update DB
               run: bash ./build/ci-scripts/update-db.sh
