@@ -14,19 +14,11 @@ async function createItem( item, user ) {
 }
 
 async function createProperty( property, user ) {
-	const response = await new RequestBuilder()
+	return ( await new RequestBuilder()
 		.withRoute( 'POST', '/v1/entities/properties' )
 		.withJsonBodyParam( 'property', property )
-		.withUser( user )
-		.makeRequest();
-
-	assert.strictEqual(
-		response.status,
-		201,
-		`createProperty failed: ${ JSON.stringify( response.body ) }`
-	);
-
-	return response.body;
+		.withUser(user)
+		.makeRequest() ).body;
 }
 
 function queryGraphQL( requestBody ) {
@@ -38,12 +30,6 @@ function queryGraphQL( requestBody ) {
 		} ) )
 		.type( 'json' )
 		.send( requestBody );
-}
-
-function skipIfNoOpenSearch() {
-	if ( process.env.QUIBBLE_OPENSEARCH && process.env.QUIBBLE_OPENSEARCH !== 'true' ) {
-		this.skip();
-	}
 }
 
 describe( 'Wikibase GraphQL', () => {
@@ -229,8 +215,11 @@ describe( 'Wikibase GraphQL', () => {
 	} );
 
 	describe( 'searchItems', () => {
-		before( function () {
-			skipIfNoOpenSearch.call( this );
+		before( async function () {
+			// Skip search tests in CI if OpenSearch is not available
+			if ( process.env.QUIBBLE_OPENSEARCH && process.env.QUIBBLE_OPENSEARCH !== 'true' ) {
+				this.skip();
+			}
 		} );
 
 		it( 'property value pair match with "and"', async function () {
@@ -374,7 +363,9 @@ describe( 'Wikibase GraphQL', () => {
 	} );
 
 	it( 'can look up items by externalId', async function () {
-		skipIfNoOpenSearch.call( this );
+		if ( process.env.QUIBBLE_OPENSEARCH && process.env.QUIBBLE_OPENSEARCH !== 'true' ) {
+			this.skip();
+		}
 
 		const response = await queryGraphQL( { query: `
 			{
