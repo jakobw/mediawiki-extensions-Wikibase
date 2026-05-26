@@ -49,9 +49,9 @@ jobs:
             - name: Raise rate limits for testing
               run: |
                   echo '$wgRateLimits["edit"]["user"] = [ 10000, 60 ];' >> ../mediawiki/LocalSettings.php
-                  echo '$wgRateLimits["edit"]["newbie"] = [ 10000, 60 ];' >> ../mediawiki/LocalSettings.php
                   echo '$wgRateLimits["create"]["user"] = [ 10000, 60 ];' >> ../mediawiki/LocalSettings.php
-                  echo '$wgRateLimits["create"]["newbie"] = [ 10000, 60 ];' >> ../mediawiki/LocalSettings.php
+                  echo '$wgRateLimits["edit"]["anon"] = [ 10000, 60 ];' >> ../mediawiki/LocalSettings.php
+                  echo '$wgRateLimits["create"]["anon"] = [ 10000, 60 ];' >> ../mediawiki/LocalSettings.php
 
             - name: Update DB
               run: bash ./build/ci-scripts/update-db.sh
