@@ -68,17 +68,21 @@ jobs:
             - name: Create api-testing config
               run: |
                   SECRET_KEY=$(sed -nE 's/^\$wgSecretKey *= *["'"'"']([^"'"'"']+)["'"'"'];/\1/p' ../mediawiki/LocalSettings.php)
+                  ADMIN_USER=$(sed -nE 's/^\s+TestWiki\s+(\S+).*/\1/p' build/ci-scripts/install.sh)
+                  ADMIN_PASS=$(sed -nE 's/^\s+--pass\s+(\S+).*/\1/p' build/ci-scripts/install.sh)
                   cat > .api-testing.config.json <<EOF
                   {
-                  "base_uri": "http://127.0.0.1:8080/",
-                  "root_user": {
-                  "name": "Admin",
-                  "password": "mwddpassword"
-                  },
-                  "secret_key": "${SECRET_KEY}"
+                      "base_uri": "http://127.0.0.1:8080/",
+                      "main_page": "Main_Page",
+                      "root_user": {
+                          "name": "${ADMIN_USER}",
+                          "password": "${ADMIN_PASS}"
+                      },
+                      "secret_key": "${SECRET_KEY}"
                   }
                   EOF
                   cp .api-testing.config.json repo/rest-api/.api-testing.config.json
+
 
             - name: Start MediaWiki web server
               working-directory: ../mediawiki
@@ -97,6 +101,10 @@ jobs:
                   done
                   cat /tmp/php-server.log
                   exit 1
+
+            # - name: Warm up MediaWiki language cache
+            #   run: |
+            #       curl -fsS "http://127.0.0.1:8080/api.php?action=query&meta=siteinfo&siprop=namespaces|languages&format=json" >/dev/null
 
             - name: Run api tests
               run: npm run api-testing
