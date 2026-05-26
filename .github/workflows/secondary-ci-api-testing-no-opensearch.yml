@@ -54,11 +54,11 @@ jobs:
               working-directory: ../mediawiki
               run: |
                   php maintenance/run.php addSite \
-                    enwiki wikipedia \
+                    enwiki local \
                     --interwiki-id enwiki \
-                    --pagepath 'http://default.mediawiki.local.wmftest.net:8080/index.php?title=$1' \
+                    --pagepath 'http://127.0.0.1:8080/index.php?title=$1' \
                     --language en \
-                    --filepath 'http://default.mediawiki.local.wmftest.net:8080/$1'
+                    --filepath 'http://127.0.0.1:8080/$1'
 
             - name: Install root test dependencies
               run: npm ci --ignore-scripts
@@ -71,17 +71,13 @@ jobs:
                   SECRET_KEY=$(sed -nE 's/^\$wgSecretKey *= *["'"'"']([^"'"'"']+)["'"'"'];/\1/p' ../mediawiki/LocalSettings.php)
                   cat > .api-testing.config.json <<EOF
                   {
-                  "base_uri": "http://default.mediawiki.local.wmftest.net:8080/",
+                  "base_uri": "http://127.0.0.1:8080/",
                   "username": "admin",
                   "password": "shie3Ekutaiy5Giebuwi",
                   "secret_key": "${SECRET_KEY}"
                   }
                   EOF
                   cp .api-testing.config.json repo/rest-api/.api-testing.config.json
-
-            - name: Add local wiki hostname
-              run: |
-                  echo "127.0.0.1 default.mediawiki.local.wmftest.net" | sudo tee -a /etc/hosts
 
             - name: Start MediaWiki web server
               working-directory: ../mediawiki
@@ -94,7 +90,7 @@ jobs:
             - name: Wait for MediaWiki
               run: |
                   for i in $(seq 1 30); do
-                     curl -fsS "http://default.mediawiki.local.wmftest.net:8080/api.php?action=query&format=json&titles=Main_Page" >/dev/null && \
+                     curl -fsS "http://127.0.0.1:8080/api.php?action=query&format=json&titles=Main_Page" >/dev/null && \
                     exit 0
                     sleep 1
                   done
