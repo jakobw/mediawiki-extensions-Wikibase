@@ -49,6 +49,7 @@ jobs:
               run: |
                   cat >> ../mediawiki/LocalSettings.php << 'PHP'
                   $__configOverrides = json_decode( $_SERVER["HTTP_X_CONFIG_OVERRIDE"] ?? "{}", true ) ?: [];
+
                   if ( !array_key_exists( "wgRateLimits", $__configOverrides ) ) {
                       foreach ( $wgRateLimits as &$__limits ) {
                           foreach ( $__limits as &$__limit ) {
@@ -58,20 +59,22 @@ jobs:
                       }
                       unset( $__limits, $__limit );
                   }
+
                   if ( !array_key_exists( "wgTempAccountCreationThrottle", $__configOverrides ) ) {
                       $wgTempAccountCreationThrottle = [];
                   }
+
                   foreach ( $__configOverrides as $__key => $__value ) {
-                      $GLOBALS[$__key] = is_array( $__value ) ? array_merge( $GLOBALS[$__key] ?? [], $__value ) : $__value;
+                      $GLOBALS[$__key] = is_array( $__value )
+                          ? array_merge( $GLOBALS[$__key] ?? [], $__value )
+                          : $__value;
                   }
+
                   unset( $__key, $__value );
                   PHP
-
+                  
             - name: Update DB
-              run: |
-                  echo '$wgAutoCreateTempUser["enabled"] = true;' >> ../mediawiki/LocalSettings.php
-                  bash ./build/ci-scripts/update-db.sh
-                  echo '$wgAutoCreateTempUser["enabled"] = false;' >> ../mediawiki/LocalSettings.php
+              run: bash ./build/ci-scripts/update-db.sh
 
             - name: Register local site for sitelinks
               working-directory: ../mediawiki
