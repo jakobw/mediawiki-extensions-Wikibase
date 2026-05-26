@@ -48,14 +48,9 @@ jobs:
             #  remove later kim
             - name: Raise rate limits for testing
               run: |
-                  echo '$wgRateLimits["edit"]["user"] = [ 10000, 60 ];' >> ../mediawiki/LocalSettings.php
-                  echo '$wgRateLimits["create"]["user"] = [ 10000, 60 ];' >> ../mediawiki/LocalSettings.php
-                  echo '$wgRateLimits["edit"]["ip"] = [ 10000, 60 ];' >> ../mediawiki/LocalSettings.php
-                  echo '$wgRateLimits["edit"]["subnet"] = [ 10000, 60 ];' >> ../mediawiki/LocalSettings.php
-                  echo '$wgRateLimits["create"]["user"] = [ 10000, 60 ];' >> ../mediawiki/LocalSettings.php
-                  echo '$wgRateLimits["create"]["newbie"] = [ 10000, 60 ];' >> ../mediawiki/LocalSettings.php
-                  echo '$wgRateLimits["create"]["ip"] = [ 10000, 60 ];' >> ../mediawiki/LocalSettings.php
-                  echo '$wgRateLimits["create"]["subnet"] = [ 10000, 60 ];' >> ../mediawiki/LocalSettings.php
+                  echo '$wgRateLimits['edit']['ip'] = [ 100, 86400 ];' >> ../mediawiki/LocalSettings.php
+                  echo '$wgRateLimits['create']['ip'] = [ 100, 86400 ];' >> ../mediawiki/LocalSettings.php
+
 
             - name: Update DB
               run: bash ./build/ci-scripts/update-db.sh
