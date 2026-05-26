@@ -366,9 +366,6 @@ describe( 'Wikibase GraphQL', () => {
 	} );
 
 	it( 'can look up items by sitelink', async function () {
-		// remove later kim
-		// skipIfNoOpenSearch.call( this );
-		// const sitelinkTitle = item1.sitelinks[ siteId ].title;
 		const response = await queryGraphQL( { query: `
 			{
 			itemBySitelink(title: "${ linkedArticle }", siteId: "${ siteId }") { id }

@@ -30,7 +30,7 @@ jobs:
             - name: Setup Node
               uses: actions/setup-node@v3
               with:
-                  node-version: '20.x'
+                  node-version: '24.x'
                   cache: npm
 
             - name: Cache Composer cache
@@ -95,23 +95,24 @@ jobs:
             - name: Wait for MediaWiki
               run: |
                   for i in $(seq 1 30); do
-                    curl -fsS http://default.mediawiki.local.wmftest.net:8080/api.php >/dev/null && \
-                    curl -fsS http://default.mediawiki.local.wmftest.net:8080/rest.php >/dev/null && \
-                    curl -fsS "http://default.mediawiki.local.wmftest.net:8080/api.php?action=query&format=json&titles=Main_Page" >/dev/null && \
+                     curl -fsS "http://default.mediawiki.local.wmftest.net:8080/api.php?action=query&format=json&titles=Main_Page" >/dev/null && \
                     exit 0
                     sleep 1
                   done
                   cat /tmp/php-server.log
                   exit 1
 
-            - name: Run GraphQL api tests
-              run: npm run api-testing:reuse
-
-            - name: Run REST search api tests
-              run: npm --prefix repo/rest-api run api-testing:e2e-search
-
-            - name: Run REST search schema tests
-              run: npm --prefix repo/rest-api run api-testing:spec-search
+            - name: Run api tests
+              run: npm run api-testing
+#
+#            - name: Run GraphQL api tests
+#              run: npm run api-testing:reuse
+#
+#            - name: Run REST search api tests
+#              run: npm --prefix repo/rest-api run api-testing:e2e-search
+#
+#            - name: Run REST search schema tests
+#              run: npm --prefix repo/rest-api run api-testing:spec-search
 
             - name: Send mail
               if: ${{ failure() }}
