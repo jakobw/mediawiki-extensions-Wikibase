@@ -60,6 +60,9 @@ jobs:
                   echo 'if ( !array_key_exists( "wgTempAccountCreationThrottle", $__configOverrides ) ) {' >> ../mediawiki/LocalSettings.php
                   echo '    $wgTempAccountCreationThrottle = [];' >> ../mediawiki/LocalSettings.php
                   echo '}' >> ../mediawiki/LocalSettings.php
+                  echo 'if ( !array_key_exists( "wgTempAccountNameAcquisitionThrottle", $__configOverrides ) ) {' >> ../mediawiki/LocalSettings.php
+                  echo '    $wgTempAccountNameAcquisitionThrottle = [];' >> ../mediawiki/LocalSettings.php
+                  echo '}' >> ../mediawiki/LocalSettings.php
 
             - name: Update DB
               run: bash ./build/ci-scripts/update-db.sh
