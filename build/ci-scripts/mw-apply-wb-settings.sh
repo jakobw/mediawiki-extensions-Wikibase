@@ -12,7 +12,7 @@ function apply_client_settings {
   echo '$wgWBClientSettings["repoSiteId"] = "enwiki";' >> LocalSettings.php
   echo '$wgWBClientSettings["siteGroup"] = "local";' >> LocalSettings.php
   echo '$wgWBClientSettings["siteLinkGroups"] = [ "local" ];' >> LocalSettings.php
-  # echo '$wgWBRepoSettings["siteLinkGroups"] = [ "local", "wikipedia" ];' >> LocalSettings.php
+  echo '$wgWBRepoSettings["siteLinkGroups"] = [ "local", "wikipedia" ];' >> LocalSettings.php
   echo 'wfLoadExtension( "Scribunto" );' >> LocalSettings.php
 }
 

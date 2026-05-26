@@ -50,6 +50,7 @@ jobs:
             - name: Update DB
               run: bash ./build/ci-scripts/update-db.sh
 
+              
             - name: Register local site for sitelinks
               working-directory: ../mediawiki
               run: |
