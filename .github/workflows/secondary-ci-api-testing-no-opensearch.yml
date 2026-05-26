@@ -71,8 +71,10 @@ jobs:
                   cat > .api-testing.config.json <<EOF
                   {
                   "base_uri": "http://127.0.0.1:8080/",
-                  "username": "admin",
-                  "password": "shie3Ekutaiy5Giebuwi",
+                  "root_user": {
+                  "name": "Admin",
+                  "password": "mwddpassword"
+                  },
                   "secret_key": "${SECRET_KEY}"
                   }
                   EOF
