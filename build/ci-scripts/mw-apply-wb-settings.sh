@@ -55,14 +55,12 @@ else
   apply_client_settings
 fi
 
-# Override siteGlobalID and repoSiteId for e2e workflows that use "default" as the site id.
-# This must come after apply_client_settings, which sets them to "enwiki".
+# Override siteGlobalID and repoSiteId for api testing
 if [ "${E2E_SITELINK_SITE_ID:-}" = "default" ]; then
   echo '$wgWBClientSettings["siteGlobalID"] = "default";' >> LocalSettings.php
   echo '$wgWBClientSettings["repoSiteId"] = "default";' >> LocalSettings.php
-  echo '$wgWBClientSettings["siteGlobalID"] = "default";' >> LocalSettings.php
   echo '$wgWBClientSettings["siteGroup"] = "local";' >> LocalSettings.php
-  echo '$wgWBClientSettings["siteLinkGroups"] = [ "local" ];' >> LocalSettings.php
+  # echo '$wgWBClientSettings["siteLinkGroups"] = [ "local" ];' >> LocalSettings.php
   echo '$wgWBRepoSettings["siteLinkGroups"] = [ "local", "wikipedia" ];' >> LocalSettings.php
 fi
 
