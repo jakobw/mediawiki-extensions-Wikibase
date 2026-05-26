@@ -45,7 +45,7 @@ jobs:
             - name: Apply WB settings
               run: bash ./build/ci-scripts/mw-apply-wb-settings.sh
 
-              #  remove later kim test?
+            #  remove later kim
             - name: Raise rate limits for testing
               run: |
                   echo '$wgRateLimits["edit"]["user"] = [ 10000, 60 ];' >> ../mediawiki/LocalSettings.php
