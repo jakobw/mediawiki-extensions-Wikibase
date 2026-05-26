@@ -45,10 +45,11 @@ jobs:
             - name: Apply WB settings
               run: bash ./build/ci-scripts/mw-apply-wb-settings.sh
 
+              #  remove later kim test?
             - name: Raise rate limits for testing
               run: |
                   echo '$wgRateLimits["edit"]["user"] = [ 10000, 60 ];' >> ../mediawiki/LocalSettings.php
-                  echo '$wgRateLimits["edit"]["newbie"] = [ 10000, 60 ];' >> ../mediawiki/LocalSettings.php
+                  echo '$wgRateLimits["create"]["user"] = [ 10000, 60 ];' >> ../mediawiki/LocalSettings.php
                   echo '$wgRateLimits["edit"]["ip"] = [ 10000, 60 ];' >> ../mediawiki/LocalSettings.php
                   echo '$wgRateLimits["edit"]["subnet"] = [ 10000, 60 ];' >> ../mediawiki/LocalSettings.php
                   echo '$wgRateLimits["create"]["user"] = [ 10000, 60 ];' >> ../mediawiki/LocalSettings.php
