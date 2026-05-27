@@ -15,7 +15,7 @@ jobs:
             DBTYPE: sqlite
             LANG: en
             WB: both
-            IPMASKING: enabled
+            IPMASKING: disabled
             QUIBBLE_OPENSEARCH: 'false'
         steps:
             - name: Checkout
