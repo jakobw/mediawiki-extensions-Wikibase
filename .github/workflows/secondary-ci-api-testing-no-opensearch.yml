@@ -50,7 +50,6 @@ jobs:
                   cat >> ../mediawiki/LocalSettings.php << 'PHP'
                   require __DIR__ . '/includes/DevelopmentSettings.php';
                   $wgMainCacheType = CACHE_NONE;
-                  $wgMessageCacheType = CACHE_NONE;
                   require __DIR__ . '/extensions/Wikibase/repo/config/Wikibase.ci.php';
                   PHP
 
