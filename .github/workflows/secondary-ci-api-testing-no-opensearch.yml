@@ -48,6 +48,7 @@ jobs:
             - name: Relax default rate limits and throttles and add X-Config-Overrides for testing
               run: |
                   cat >> ../mediawiki/LocalSettings.php << 'PHP'
+                  require __DIR__ . '/includes/DevelopmentSettings.php';
                   require __DIR__ . '/extensions/Wikibase/repo/config/Wikibase.ci.php';
                   PHP
 
