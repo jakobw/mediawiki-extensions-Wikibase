@@ -45,11 +45,16 @@ jobs:
             - name: Apply WB settings
               run: bash ./build/ci-scripts/mw-apply-wb-settings.sh
 
-            - name: Relax default rate limits and throttles for testing
+            - name: Relax default rate limits and throttles and add X-Config-Overrides for testing
               run: |
                   cat >> ../mediawiki/LocalSettings.php << 'PHP'
-                  $__configOverrides = json_decode( $_SERVER["HTTP_X_CONFIG_OVERRIDE"] ?? "{}", true ) ?: [];
+                  // Test-only hook: request builders can send JSON in X-Config-Override
+                  // to override MediaWiki globals for a single request.
+                  // $__configOverrides = json_decode( $_SERVER["HTTP_X_CONFIG_OVERRIDE"] ?? "{}", true ) ?: [];
+                  $configOverrides = json_decode( RequestContext::getMain()->getRequest()->getHeader( 'X-Config-Override' ) ?: '{}', true );
 
+                  // Keep regular rate limits out of the way unless a test explicitly
+                  // overrides wgRateLimits to exercise rate-limit behavior.
                   if ( !array_key_exists( "wgRateLimits", $__configOverrides ) ) {
                       foreach ( $wgRateLimits as &$__limits ) {
                           foreach ( $__limits as &$__limit ) {
@@ -60,24 +65,23 @@ jobs:
                       unset( $__limits, $__limit );
                   }
 
+                  // Disable the temp account creation throttle by default; individual
+                  // tests can still override it when testing for 429 responses.
                   if ( !array_key_exists( "wgTempAccountCreationThrottle", $__configOverrides ) ) {
                       $wgTempAccountCreationThrottle = [];
                   }
 
+                  // Temp accounts first acquire/stash a username before account creation.
+                  // Disable that separate throttle too, otherwise large suites can fail
                   if ( !array_key_exists( "wgTempAccountNameAcquisitionThrottle", $__configOverrides ) ) {
                       $wgTempAccountNameAcquisitionThrottle = [];
                   }
 
+                  // Apply per-request X-Config-Override headers after relaxed defaults.
                   foreach ( $__configOverrides as $__key => $__value ) {
-                      if (
-                          is_array( $__value ) &&
-                          !array_is_list( $__value ) &&
-                          is_array( $GLOBALS[$__key] ?? null )
-                      ) {
-                          $GLOBALS[$__key] = array_replace_recursive( $GLOBALS[$__key], $__value );
-                      } else {
-                          $GLOBALS[$__key] = $__value;
-                      }
+                      $GLOBALS[$__key] = is_array( $__value )
+                          ? array_merge( $GLOBALS[$__key] ?? [], $__value )
+                          : $__value;
                   }
 
                   unset( $__key, $__value );
@@ -146,15 +150,6 @@ jobs:
 
             - name: Run api tests
               run: npm run api-testing
-
-            # - name: Run GraphQL api tests
-            #   run: npm run api-testing:reuse
-
-            # - name: Run REST search api tests
-            #   run: npm --prefix repo/rest-api run api-testing:e2e-search
-
-            # - name: Run REST search schema tests
-            #   run: npm --prefix repo/rest-api run api-testing:spec-search
 
             - name: Send mail
               if: ${{ failure() }}
