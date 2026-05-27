@@ -48,31 +48,58 @@ jobs:
             - name: Relax default rate limits and throttles for testing
               run: |
                   cat >> ../mediawiki/LocalSettings.php << 'PHP'
+                  // Dangerous test-only hack. Never use this on a production wiki.
+                  //
+                  // Allows API tests to override selected MediaWiki config values per request
+                  // by sending a JSON object in the X-Config-Override header.
                   $__configOverrides = json_decode( $_SERVER["HTTP_X_CONFIG_OVERRIDE"] ?? "{}", true ) ?: [];
 
+                  // By default, relax existing rate limits so unrelated throttles do not make
+                  // e2e tests flaky. If a test explicitly overrides wgRateLimits, leave that
+                  // override in control instead.
                   if ( !array_key_exists( "wgRateLimits", $__configOverrides ) ) {
                       foreach ( $wgRateLimits as &$__limits ) {
                           foreach ( $__limits as &$__limit ) {
-                              if ( !is_array( $__limit ) ) { continue; }
+                              if ( !is_array( $__limit ) ) {
+                                  continue;
+                              }
+
+                              // MediaWiki rate-limit entries are usually [ count, seconds ].
+                              // Raise only the count, preserving the configured time window.
                               $__limit[0] = PHP_INT_MAX;
                           }
                       }
                       unset( $__limits, $__limit );
                   }
 
+                  // Disable the default temporary account creation throttle unless a test is
+                  // explicitly testing/overriding it.
                   if ( !array_key_exists( "wgTempAccountCreationThrottle", $__configOverrides ) ) {
                       $wgTempAccountCreationThrottle = [];
                   }
 
+                  // Apply per-request config overrides after the relaxed defaults above.
                   foreach ( $__configOverrides as $__key => $__value ) {
-                      $GLOBALS[$__key] = is_array( $__value )
-                          ? array_merge( $GLOBALS[$__key] ?? [], $__value )
-                          : $__value;
+                      if (
+                          is_array( $__value ) &&
+                          !array_is_list( $__value ) &&
+                          is_array( $GLOBALS[$__key] ?? null )
+                      ) {
+                          // Associative config arrays, such as wgAutoCreateTempUser, should
+                          // keep their existing/default keys while replacing only the keys
+                          // supplied by the test.
+                          $GLOBALS[$__key] = array_replace_recursive( $GLOBALS[$__key], $__value );
+                      } else {
+                          // Scalars and list-style arrays, such as wgMainCacheType or
+                          // wgTempAccountCreationThrottle, should replace the existing config
+                          // value entirely rather than being merged/appended.
+                          $GLOBALS[$__key] = $__value;
+                      }
                   }
 
                   unset( $__key, $__value );
                   PHP
-                  
+
             - name: Update DB
               run: bash ./build/ci-scripts/update-db.sh
 
@@ -129,7 +156,7 @@ jobs:
                   cat /tmp/php-server.log
                   exit 1
 
-             # confirm if needed
+             # confirm if still needed kim
             - name: Warm up MediaWiki language cache
               run: |
                   curl -fsS "http://127.0.0.1:8080/api.php?action=query&meta=siteinfo&siprop=namespaces|languages&format=json" >/dev/null
