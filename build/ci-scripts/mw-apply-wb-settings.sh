@@ -1,5 +1,5 @@
 #!/bin/bash
-# Used in .github/workflows/secondaryCI.yml and .github/workflows/secondary-ci-api-testing-no-opensearch.yml
+# Used in .github/workflows/secondaryCI.yml
 # The script used in Wikimedia CI is in build/jenkins/mw-apply-wb-settings.sh
 
 set -x
