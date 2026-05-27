@@ -2,7 +2,7 @@ name: Wikibase Secondary CI API Testing without OpenSearch
 on:
     workflow_dispatch:
     push:
-        branches: [ master ]
+        branches: [ api-testing-action ]
 
 env:
     COMPOSER_HOME: ${{ github.workspace }}/.composer
