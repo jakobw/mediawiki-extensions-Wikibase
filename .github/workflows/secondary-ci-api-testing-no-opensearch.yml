@@ -64,6 +64,10 @@ jobs:
                       $wgTempAccountCreationThrottle = [];
                   }
 
+                  if ( !array_key_exists( "wgTempAccountNameAcquisitionThrottle", $__configOverrides ) ) {
+                      $wgTempAccountNameAcquisitionThrottle = [];
+                  }
+
                   foreach ( $__configOverrides as $__key => $__value ) {
                       if (
                           is_array( $__value ) &&
