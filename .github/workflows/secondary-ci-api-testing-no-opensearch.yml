@@ -50,8 +50,7 @@ jobs:
                   cat >> ../mediawiki/LocalSettings.php << 'PHP'
                   // Test-only hook: request builders can send JSON in X-Config-Override
                   // to override MediaWiki globals for a single request.
-                  // $__configOverrides = json_decode( $_SERVER["HTTP_X_CONFIG_OVERRIDE"] ?? "{}", true ) ?: [];
-                  $configOverrides = json_decode( RequestContext::getMain()->getRequest()->getHeader( 'X-Config-Override' ) ?: '{}', true );
+                  $__configOverrides = json_decode( $_SERVER["HTTP_X_CONFIG_OVERRIDE"] ?? "{}", true ) ?: [];
 
                   // Keep regular rate limits out of the way unless a test explicitly
                   // overrides wgRateLimits to exercise rate-limit behavior.
@@ -142,11 +141,6 @@ jobs:
                   done
                   cat /tmp/php-server.log
                   exit 1
-
-             # confirm if still needed kim
-            - name: Warm up MediaWiki language cache
-              run: |
-                  curl -fsS "http://127.0.0.1:8080/api.php?action=query&meta=siteinfo&siprop=namespaces|languages&format=json" >/dev/null
 
             - name: Run api tests
               run: npm run api-testing
