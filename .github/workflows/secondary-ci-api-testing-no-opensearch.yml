@@ -48,42 +48,7 @@ jobs:
             - name: Relax default rate limits and throttles and add X-Config-Overrides for testing
               run: |
                   cat >> ../mediawiki/LocalSettings.php << 'PHP'
-                  // Test-only hook: request builders can send JSON in X-Config-Override
-                  // to override MediaWiki globals for a single request.
-                  $__configOverrides = json_decode( $_SERVER["HTTP_X_CONFIG_OVERRIDE"] ?? "{}", true ) ?: [];
-
-                  // Keep regular rate limits out of the way unless a test explicitly
-                  // overrides wgRateLimits to exercise rate-limit behavior.
-                  if ( !array_key_exists( "wgRateLimits", $__configOverrides ) ) {
-                      foreach ( $wgRateLimits as &$__limits ) {
-                          foreach ( $__limits as &$__limit ) {
-                              if ( !is_array( $__limit ) ) { continue; }
-                              $__limit[0] = PHP_INT_MAX;
-                          }
-                      }
-                      unset( $__limits, $__limit );
-                  }
-
-                  // Disable the temp account creation throttle by default; individual
-                  // tests can still override it when testing for 429 responses.
-                  if ( !array_key_exists( "wgTempAccountCreationThrottle", $__configOverrides ) ) {
-                      $wgTempAccountCreationThrottle = [];
-                  }
-
-                  // Temp accounts first acquire/stash a username before account creation.
-                  // Disable that separate throttle too, otherwise large suites can fail
-                  if ( !array_key_exists( "wgTempAccountNameAcquisitionThrottle", $__configOverrides ) ) {
-                      $wgTempAccountNameAcquisitionThrottle = [];
-                  }
-
-                  // Apply per-request X-Config-Override headers after relaxed defaults.
-                  foreach ( $__configOverrides as $__key => $__value ) {
-                      $GLOBALS[$__key] = is_array( $__value )
-                          ? array_merge( $GLOBALS[$__key] ?? [], $__value )
-                          : $__value;
-                  }
-
-                  unset( $__key, $__value );
+                  require __DIR__ . '/extensions/Wikibase/repo/config/Wikibase.ci.php';
                   PHP
 
             - name: Update DB
@@ -93,7 +58,7 @@ jobs:
               working-directory: ../mediawiki
               run: |
                   php maintenance/run.php addSite \
-                    enwiki local \
+                    enwiki CI \
                     --interwiki-id enwiki \
                     --pagepath 'http://127.0.0.1:8080/index.php?title=$1' \
                     --language en \
