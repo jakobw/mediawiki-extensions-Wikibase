@@ -62,9 +62,9 @@ jobs:
                   php maintenance/run.php addSite \
                     enwiki CI \
                     --interwiki-id enwiki \
-                    --pagepath 'http://127.0.0.1:8080/index.php?title=$1' \
+                    --pagepath 'http://127.0.0.1/index.php?title=$1' \
                     --language en \
-                    --filepath 'http://127.0.0.1:8080/$1'
+                    --filepath 'http://127.0.0.1/$1'
 
             - name: Install root test dependencies
               run: npm ci --ignore-scripts
@@ -79,7 +79,7 @@ jobs:
                   ADMIN_PASS=$(sed -nE 's/^\s+--pass\s+(\S+).*/\1/p' build/ci-scripts/install.sh)
                   cat > .api-testing.config.json <<EOF
                   {
-                      "base_uri": "http://127.0.0.1:8080/",
+                      "base_uri": "http://127.0.0.1/",
                       "main_page": "Main_Page",
                       "root_user": {
                           "name": "${ADMIN_USER}",
@@ -92,21 +92,22 @@ jobs:
 
 
             - name: Start MediaWiki web server
-              working-directory: ../mediawiki
               run: |
-                  nohup env PHP_CLI_SERVER_WORKERS=8 php -S 127.0.0.1:8080 -t . >/tmp/php-server.log 2>&1 &
-                  echo $! > /tmp/php-server.pid
-                  sleep 2
-                  ps -p "$(cat /tmp/php-server.pid)" || (cat /tmp/php-server.log && exit 1)
+                  sudo apt-get install -y apache2 libapache2-mod-php8.3
+                  sudo sed -i "s/APACHE_RUN_USER=www-data/APACHE_RUN_USER=$(whoami)/" /etc/apache2/envvars
+                  sudo sed -i "s/APACHE_RUN_GROUP=www-data/APACHE_RUN_GROUP=$(whoami)/" /etc/apache2/envvars
+                  sudo rm -rf /var/www/html
+                  sudo ln -s "$(dirname "$GITHUB_WORKSPACE")/mediawiki" /var/www/html
+                  sudo systemctl start apache2
 
             - name: Wait for MediaWiki
               run: |
                   for i in $(seq 1 30); do
-                     curl -fsS "http://127.0.0.1:8080/api.php?action=query&format=json&titles=Main_Page" >/dev/null && \
-                    exit 0
-                    sleep 1
+                      curl -fsS "http://127.0.0.1/api.php?action=query&format=json&titles=Main_Page" >/dev/null && \
+                      exit 0
+                      sleep 1
                   done
-                  cat /tmp/php-server.log
+                  sudo journalctl -u apache2 --no-pager
                   exit 1
 
             - name: Run api tests

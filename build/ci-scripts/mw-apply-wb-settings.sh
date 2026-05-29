@@ -14,8 +14,8 @@ function apply_client_settings {
 
 function apply_repo_settings {
   echo '$wgEnableWikibaseRepo = true;' >> LocalSettings.php
-  echo '$wgServer = "http://127.0.0.1:8080";' >> LocalSettings.php
-  echo '$wgCanonicalServer = "http://127.0.0.1:8080";' >> LocalSettings.php
+  echo '$wgServer = "http://127.0.0.1";' >> LocalSettings.php
+  echo '$wgCanonicalServer = "http://127.0.0.1";' >> LocalSettings.php
   echo '$wgScriptPath = "";' >> LocalSettings.php
 }
 
